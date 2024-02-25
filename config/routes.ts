@@ -12,6 +12,22 @@
  */
 export default [
   {
+    path: '/interface_info/:id',
+    component: './Interfaceinfo',
+    hideInMenu: true,
+  },
+  {
+    path: '/account/center',
+    component: './User/Center',
+    hideInMenu: true,
+  },
+  {
+    path: '/welcome',
+    name: 'welcome',
+    icon: 'smile',
+    component: './Welcome',
+  },
+  {
     path: '/user',
     layout: false,
     routes: [
@@ -23,40 +39,19 @@ export default [
     ],
   },
   {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'smile',
-    component: './Welcome',
-  },
-  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
     access: 'canAdmin',
     routes: [
       {
-        path: '/admin',
-        redirect: '/admin/sub-page',
-      },
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        component: './Admin',
-      },
-      {
         name: 'interface-info',
         icon: 'table',
         path: '/admin/interface_info',
-        component: './admin/interfaceinfo',
+        component: './Admin/Interfaceinfo',
       },
     ],
   },
-  /*{
-    name: 'interface-info',
-    icon: 'table',
-    path: '/interface_info',
-    component: './interfaceinfo',
-  },*/
   {
     path: '/',
     redirect: '/welcome',

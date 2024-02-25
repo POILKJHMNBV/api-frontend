@@ -1,26 +1,18 @@
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
-import { PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
-import {
-  FooterToolbar,
-  ModalForm,
-  PageContainer,
-  ProDescriptions,
-  ProFormText,
-  ProFormTextArea,
-  ProTable,
-} from '@ant-design/pro-components';
-import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Drawer, Input, message } from 'antd';
-import React, { useRef, useState } from 'react';
-import type { FormValueType } from './components/UpdateForm';
+import {PlusOutlined} from '@ant-design/icons';
+import type {ActionType, ProColumns, ProDescriptionsItemProps} from '@ant-design/pro-components';
+import {FooterToolbar, PageContainer, ProDescriptions, ProTable,} from '@ant-design/pro-components';
+import {FormattedMessage, useIntl} from '@umijs/max';
+import {Button, Drawer, message} from 'antd';
+import React, {useRef, useState} from 'react';
 import UpdateForm from './components/UpdateForm';
-import {SortOrder} from "antd/lib/table/interface";
 import {
-  addInterfaceInfoUsingPOST,
-  listInterfaceInfoVOByPageUsingPOST, updateInterfaceInfoUsingPOST
+  addInterfaceInfoUsingPOST, deleteInterfaceInfoUsingDELETE,
+  listInterfaceInfoByPageUsingPOST,
+  offlineInterfaceInfoUsingPUT,
+  onlineInterfaceInfoUsingPUT,
+  updateInterfaceInfoUsingPUT
 } from "@/services/api-backend/interfaceInfoController";
-import CreateForm from "@/pages/admin/interfaceinfo/components/CreateForm";
+import CreateForm from "@/pages/Admin/Interfaceinfo/components/CreateForm";
 
 
 /**
@@ -29,12 +21,12 @@ import CreateForm from "@/pages/admin/interfaceinfo/components/CreateForm";
  *
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.RuleListItem[]) => {
+const handleRemove = async (selectedRows: API.ApiInterfaceInfo[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
+    await deleteInterfaceInfoUsingDELETE({
+      ids: selectedRows.map((row) => row.id),
     });
     hide();
     message.success('Deleted successfully and will refresh soon');
@@ -61,8 +53,8 @@ const TableList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [ currentRow, setCurrentRow] = useState<API.ApiInterfaceInfo>();
+  const [selectedRowsState, setSelectedRows] = useState<API.ApiInterfaceInfo[]>([]);
 
 
   /**
@@ -70,7 +62,7 @@ const TableList: React.FC = () => {
    * @zh-CN 添加节点
    * @param fields
    */
-  const handleAdd = async (fields: API.InterfaceInfo) => {
+  const handleAdd = async (fields: API.AddInterfaceInfoForm) => {
     const hide = message.loading('正在添加');
     try {
       await addInterfaceInfoUsingPOST({ ...fields });
@@ -91,10 +83,14 @@ const TableList: React.FC = () => {
    *
    * @param fields
    */
-  const handleUpdate = async (fields: API.InterfaceInfo) => {
+  const handleUpdate = async (fields: API.UpdateInterfaceInfoForm) => {
+    if (!currentRow) {
+      return;
+    }
     const hide = message.loading('Configuring');
     try {
-      await updateInterfaceInfoUsingPOST({
+      await updateInterfaceInfoUsingPUT({
+        id: currentRow.id,
         ...fields
       });
       hide();
@@ -109,12 +105,55 @@ const TableList: React.FC = () => {
   };
 
   /**
+   * 发布接口
+   * @param id
+   */
+  const handleOnline = async (id: number) => {
+    const hide = message.loading('正在发布');
+    try {
+      await onlineInterfaceInfoUsingPUT({
+        id
+      });
+      hide();
+
+      message.success('发布成功');
+      return true;
+    } catch (error) {
+      hide();
+      message.error('发布失败');
+      return false;
+    }
+  };
+
+
+  /**
+   * 下线接口
+   * @param id
+   */
+  const handleOffline = async (id: number) => {
+    const hide = message.loading('正在下线');
+    try {
+      await offlineInterfaceInfoUsingPUT({
+        id
+      });
+      hide();
+
+      message.success('下线成功');
+      return true;
+    } catch (error) {
+      hide();
+      message.error('下线失败');
+      return false;
+    }
+  };
+
+  /**
    * @en-US International configuration
    * @zh-CN 国际化配置
    * */
   const intl = useIntl();
 
-  const columns: ProColumns<API.InterfaceInfo>[] = [
+  const columns: ProColumns<API.ApiInterfaceInfo>[] = [
     {
       title: 'id',
       dataIndex: 'id',
@@ -122,7 +161,7 @@ const TableList: React.FC = () => {
     },
     {
       title: '接口名称',
-      dataIndex: 'name',
+      dataIndex: 'interfaceName',
       valueType: 'text',
       formItemProps: {
         rules:[{
@@ -131,18 +170,28 @@ const TableList: React.FC = () => {
       }
     },
     {
+      title: '接口提供系统',
+      dataIndex: 'interfaceVendor',
+      valueType: 'textarea',
+    },
+    {
+      title: '接口提供系统名',
+      dataIndex: 'interfaceVendorName',
+      valueType: 'textarea',
+    },
+    {
       title: '描述',
-      dataIndex: 'description',
+      dataIndex: 'interfaceDescription',
       valueType: 'textarea',
     },
     {
       title: '请求方法',
-      dataIndex: 'method',
+      dataIndex: 'interfaceRequestMethod',
       valueType: 'text',
     },
     {
       title: <FormattedMessage id="pages.searchTable.titleStatus" defaultMessage="Status" />,
-      dataIndex: 'status',
+      dataIndex: 'interfaceStatus',
       hideInForm: true,
       valueEnum: {
         0: {
@@ -156,35 +205,65 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: 'url',
-      dataIndex: 'url',
+      title: '接口是否删除',
+      dataIndex: 'interfaceDelete',
+      hideInForm: true,
+      valueEnum: {
+        0: {
+          text: '已删',
+          status: 'Default',
+        },
+        1: {
+          text: '未删',
+          status: 'Processing',
+        },
+      },
+    },
+    {
+      title: '访问主机',
+      dataIndex: 'interfaceHost',
+      valueType: 'text',
+    },
+    {
+      title: '访问路径',
+      dataIndex: 'interfacePath',
       valueType: 'text',
     },
     {
       title: '请求头',
-      dataIndex: 'requestheader',
-      valueType: 'textarea',
+      dataIndex: 'interfaceRequestHeader',
+      valueType: 'jsonCode',
     },
     {
       title: '请求参数',
-      dataIndex: 'requestparams',
-      valueType: 'textarea',
+      dataIndex: 'interfaceRequestParams',
+      valueType: 'jsonCode',
+    },
+    {
+      title: '接口请求参数MIME类型',
+      dataIndex: 'interfaceRequestParamsMime',
+      valueType: 'text',
+    },
+    {
+      title: '接口请求参数编码格式',
+      dataIndex: 'interfaceRequestParamsCharset',
+      valueType: 'text',
     },
     {
       title: '响应头',
-      dataIndex: 'responseheader',
-      valueType: 'textarea',
+      dataIndex: 'interfaceResponseHeader',
+      valueType: 'jsonCode',
     },
     {
       title: '创建时间',
-      dataIndex: 'createtime',
-      valueType: 'text',
+      dataIndex: 'createTime',
+      valueType: 'dateTime',
       hideInForm: true,
     },
     {
       title: '更新时间',
-      dataIndex: 'updatetime',
-      valueType: 'text',
+      dataIndex: 'updateTime',
+      valueType: 'dateTime',
       hideInForm: true,
     },
     {
@@ -201,19 +280,41 @@ const TableList: React.FC = () => {
         >
           <FormattedMessage id="pages.searchTable.config" defaultMessage="Configuration" />
         </a>,
-        /*<a key="subscribeAlert" href="https://procomponents.ant.design/">
-          <FormattedMessage
-            id="pages.searchTable.subscribeAlert"
-            defaultMessage="Subscribe to alerts"
-          />
-        </a>,*/
+        record.interfaceStatus === 0 ? <a
+          key="online"
+          style={{color:'green'}}
+          onClick={() => {
+            handleOnline(record.id);
+          }}
+        >
+          <FormattedMessage id="pages.searchTable.online" defaultMessage="Configuration" />
+        </a> : null,
+        record.interfaceStatus === 1 ? <a
+          key="offline"
+          style={{color:'red'}}
+          onClick={() => {
+            handleOffline(record.id);
+          }}
+        >
+          <FormattedMessage id="pages.searchTable.offline" defaultMessage="Configuration" />
+        </a> : null,
+        <a
+          key="delete"
+          onClick={() => {
+            handleUpdateModalOpen(true);
+            setCurrentRow(record);
+          }}
+        >
+          <FormattedMessage id="pages.searchTable.delete" defaultMessage="Configuration" />
+        </a>
       ],
     },
   ];
 
+  // @ts-ignore
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
+      <ProTable<API.ApiInterfaceInfo, API.PageParams>
         headerTitle={intl.formatMessage({
           id: 'pages.searchTable.title',
           defaultMessage: 'Enquiry form',
@@ -234,13 +335,14 @@ const TableList: React.FC = () => {
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
           </Button>,
         ]}
-        request={async (params: '', sort: Record<string, SortOrder>, filter: Record<string, (string | number)[] | null>) => {
-            const res: any = await listInterfaceInfoVOByPageUsingPOST({
+        request={async (params
+        ) => {
+            const res: any = await listInterfaceInfoByPageUsingPOST({
               ...params
             });
             if (res?.data) {
               return {
-                data: res?.data.records || [],
+                data: res.data.records || [],
                 success: true,
                 total: res.data.total
               }
@@ -266,19 +368,11 @@ const TableList: React.FC = () => {
               <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
               <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
               <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
-              &nbsp;&nbsp;
-              <span>
-                <FormattedMessage
-                  id="pages.searchTable.totalServiceCalls"
-                  defaultMessage="Total number of service calls"
-                />{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
-              </span>
             </div>
           }
         >
           <Button
+            type="primary"
             onClick={async () => {
               await handleRemove(selectedRowsState);
               setSelectedRows([]);
@@ -290,49 +384,8 @@ const TableList: React.FC = () => {
               defaultMessage="Batch deletion"
             />
           </Button>
-          <Button type="primary">
-            <FormattedMessage
-              id="pages.searchTable.batchApproval"
-              defaultMessage="Batch approval"
-            />
-          </Button>
         </FooterToolbar>
       )}
-      {/*<ModalForm
-        title={intl.formatMessage({
-          id: 'pages.searchTable.createForm.newRule',
-          defaultMessage: 'New rule',
-        })}
-        width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as API.RuleListItem);
-          if (success) {
-            handleModalOpen(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.searchTable.ruleName"
-                  defaultMessage="Rule name is required"
-                />
-              ),
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-        <ProFormTextArea width="md" name="desc" />
-      </ModalForm>*/}
       <CreateForm
         columns={columns}
         onCancel={() => {handleModalOpen(false)}}
@@ -369,17 +422,17 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
+        {currentRow?.interfaceName && (
+          <ProDescriptions<API.ApiInterfaceInfo>
             column={2}
-            title={currentRow?.name}
+            title={currentRow?.interfaceName}
             request={async () => ({
               data: currentRow || {},
             })}
             params={{
-              id: currentRow?.name,
+              id: currentRow?.interfaceName,
             }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.ApiInterfaceInfo>[]}
           />
         )}
       </Drawer>

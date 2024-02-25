@@ -16,11 +16,11 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
-import { FormattedMessage, history, SelectLang, useIntl, useModel, Helmet } from '@umijs/max';
+import {FormattedMessage, history, SelectLang, useIntl, Helmet, useModel} from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useState } from 'react';
-import { flushSync } from 'react-dom';
+import {flushSync} from "react-dom";
 
 const ActionIcons = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -101,7 +101,19 @@ const Login: React.FC = () => {
   });
 
   const intl = useIntl();
-  const handleSubmit = async (values: API.UserLoginRequest) => {
+
+  const fetchUserInfo = async () => {
+    const userInfo = await initialState?.fetchUserInfo?.();
+    if (userInfo) {
+      flushSync(() => {
+        setInitialState((s) => ({
+          ...s,
+          currentUser: userInfo,
+        }));
+      });
+    }
+  };
+  const handleSubmit = async (values: API.UserLoginForm) => {
     try {
       // 登录
       const res = await userLoginUsingPOST({ ...values });
@@ -110,17 +122,13 @@ const Login: React.FC = () => {
           id: 'pages.login.success',
           defaultMessage: '登录成功！',
         });
+        localStorage.setItem('apiBackendToken', res.data);
         message.success(defaultLoginSuccessMessage);
-        setInitialState({
-          loginUser: res.data,
-        });
-        setTimeout(() => {
-          const urlParams = new URL(window.location.href).searchParams;
-          history.push(urlParams.get('redirect') || '/');
-        }, 100)
+        await fetchUserInfo();
+        const urlParams = new URL(window.location.href).searchParams;
+        history.push(urlParams.get('redirect') || '/');
         return;
       }
-      console.log(res);
     } catch (error) {
       const defaultLoginFailureMessage = intl.formatMessage({
         id: 'pages.login.failure',
@@ -170,7 +178,7 @@ const Login: React.FC = () => {
             <ActionIcons key="icons" />,
           ]}
           onFinish={async (values) => {
-            await handleSubmit(values as API.UserLoginRequest);
+            await handleSubmit(values as API.UserLoginForm);
           }}
         >
           <Tabs

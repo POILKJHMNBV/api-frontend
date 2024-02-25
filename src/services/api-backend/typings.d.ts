@@ -1,170 +1,85 @@
 declare namespace API {
-  type BaseResponseboolean = {
-    code?: number;
-    data?: boolean;
-    message?: string;
+  type AddInterfaceInfoForm = {
+    /** 接口描述 */
+    interfaceDescription?: string;
+    /** 访问主机 */
+    interfaceHost?: string;
+    /** 接口名称 */
+    interfaceName?: string;
+    /** 访问路径 */
+    interfacePath?: string;
+    /** 接口请求头 */
+    interfaceRequestHeader?: string;
+    /** 接口请求方法类型 */
+    interfaceRequestMethod?: string;
+    /** 接口请求参数 */
+    interfaceRequestParams?: string;
+    /** 接口请求参数编码格式 */
+    interfaceRequestParamsCharset?: string;
+    /** 接口请求参数MIME类型 */
+    interfaceRequestParamsMime?: string;
+    /** 接口响应头 */
+    interfaceResponseHeader?: string;
+    /** 接口提供系统 */
+    interfaceVendor?: string;
+    /** 接口提供系统名 */
+    interfaceVendorName?: string;
   };
 
-  type BaseResponseint = {
-    code?: number;
-    data?: number;
-    message?: string;
-  };
-
-  type BaseResponseLoginUserVO = {
-    code?: number;
-    data?: LoginUserVO;
-    message?: string;
-  };
-
-  type BaseResponselong = {
-    code?: number;
-    data?: number;
-    message?: string;
-  };
-
-  type BaseResponsePageInterfaceInfo = {
-    code?: number;
-    data?: PageInterfaceInfo;
-    message?: string;
-  };
-
-  type BaseResponsePagePostVO = {
-    code?: number;
-    data?: PagePostVO;
-    message?: string;
-  };
-
-  type BaseResponsePageUser = {
-    code?: number;
-    data?: PageUser;
-    message?: string;
-  };
-
-  type BaseResponsePageUserVO = {
-    code?: number;
-    data?: PageUserVO;
-    message?: string;
-  };
-
-  type BaseResponsePostVO = {
-    code?: number;
-    data?: PostVO;
-    message?: string;
-  };
-
-  type BaseResponsestring = {
-    code?: number;
-    data?: string;
-    message?: string;
-  };
-
-  type BaseResponseUser = {
-    code?: number;
-    data?: User;
-    message?: string;
-  };
-
-  type BaseResponseUserVO = {
-    code?: number;
-    data?: UserVO;
-    message?: string;
-  };
-
-  type checkUsingGETParams = {
-    /** timestamp */
-    timestamp?: string;
-    /** nonce */
-    nonce?: string;
-    /** signature */
-    signature?: string;
-    /** echostr */
-    echostr?: string;
-  };
-
-  type DeleteRequest = {
+  type ApiInterfaceInfo = {
+    createTime?: string;
     id?: number;
+    interfaceDelete?: number;
+    interfaceDescription?: string;
+    interfaceHost?: string;
+    interfaceName?: string;
+    interfacePath?: string;
+    interfacePublishUserid?: number;
+    interfaceRequestHeader?: string;
+    interfaceRequestMethod?: string;
+    interfaceRequestParams?: string;
+    interfaceRequestParamsCharset?: string;
+    interfaceRequestParamsMime?: string;
+    interfaceResponseHeader?: string;
+    interfaceStatus?: number;
+    interfaceToken?: string;
+    interfaceVendor?: string;
+    interfaceVendorName?: string;
+    updateTime?: string;
   };
 
-  type getPostVOByIdUsingGETParams = {
-    /** id */
+  type deleteInterfaceInfoUsingDELETEParams = {
+    /** ids */
+    ids: number;
+  };
+
+  type InvokeInterfaceForm = {
     id?: number;
-  };
-
-  type getUserByIdUsingGETParams = {
-    /** id */
-    id?: number;
-  };
-
-  type getUserVOByIdUsingGETParams = {
-    /** id */
-    id?: number;
-  };
-
-  type InterfaceInfo = {
-    createtime?: string;
-    description?: string;
-    id?: number;
-    isdelete?: number;
-    method?: string;
-    name?: string;
-    requestheader?: string;
-    requestparams?: string;
-    responseheader?: string;
-    status?: number;
-    updatetime?: string;
-    url?: string;
-    userid?: number;
-  };
-
-  type InterfaceInfoAddRequest = {
-    description?: string;
-    method?: string;
-    name?: string;
-    requestheader?: string;
-    requestparams?: string;
-    responseheader?: string;
-    url?: string;
-  };
-
-  type InterfaceInfoQueryRequest = {
-    current?: number;
-    description?: string;
-    id?: number;
-    isdelete?: number;
-    method?: string;
-    name?: string;
-    pageSize?: number;
-    requestheader?: string;
-    requestparams?: string;
-    responseheader?: string;
-    sortField?: string;
-    sortOrder?: string;
-    status?: number;
-    url?: string;
-    userid?: number;
-  };
-
-  type InterfaceInfoUpdateRequest = {
-    description?: string;
-    id?: number;
-    method?: string;
-    name?: string;
-    requestheader?: string;
-    requestparams?: string;
-    responseheader?: string;
-    status?: number;
-    url?: string;
+    userRequestParam?: string;
   };
 
   type LoginUserVO = {
-    createTime?: string;
     id?: number;
-    updateTime?: string;
+    userAccesskey?: string;
+    userAccount?: string;
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
+    userPublickey?: string;
     userRole?: string;
+    userSecretkey?: string;
+  };
+
+  type offlineInterfaceInfoUsingPUTParams = {
+    /** id */
+    id: number;
+  };
+
+  type onlineInterfaceInfoUsingPUTParams = {
+    /** id */
+    id: number;
   };
 
   type OrderItem = {
@@ -172,201 +87,143 @@ declare namespace API {
     column?: string;
   };
 
-  type PageInterfaceInfo = {
+  type PageApiInterfaceInfo = {
     countId?: string;
     current?: number;
     maxLimit?: number;
     optimizeCountSql?: boolean;
     orders?: OrderItem[];
     pages?: number;
-    records?: InterfaceInfo[];
+    records?: ApiInterfaceInfo[];
     searchCount?: boolean;
     size?: number;
     total?: number;
   };
 
-  type PagePostVO = {
-    countId?: string;
+  type queryInterfaceInfoByIdUsingGETParams = {
+    /** id */
+    id: number;
+  };
+
+  type QueryInterfaceInfoForm = {
     current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: OrderItem[];
-    pages?: number;
-    records?: PostVO[];
-    searchCount?: boolean;
-    size?: number;
-    total?: number;
-  };
-
-  type PageUser = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: OrderItem[];
-    pages?: number;
-    records?: User[];
-    searchCount?: boolean;
-    size?: number;
-    total?: number;
-  };
-
-  type PageUserVO = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: OrderItem[];
-    pages?: number;
-    records?: UserVO[];
-    searchCount?: boolean;
-    size?: number;
-    total?: number;
-  };
-
-  type PostAddRequest = {
-    content?: string;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostEditRequest = {
-    content?: string;
+    /** 接口id */
     id?: number;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostFavourAddRequest = {
-    postId?: number;
-  };
-
-  type PostFavourQueryRequest = {
-    current?: number;
+    /** 接口是否删除 */
+    interfaceDelete?: number;
+    /** 接口描述 */
+    interfaceDescription?: string;
+    /** 访问主机 */
+    interfaceHost?: string;
+    /** 接口名称 */
+    interfaceName?: string;
+    /** 访问路径 */
+    interfacePath?: string;
+    /** 接口发布人 */
+    interfacePublishUserid?: number;
+    /** 接口响应头 */
+    interfaceRequestHeader?: string;
+    /** 接口请求方法类型 */
+    interfaceRequestMethod?: string;
+    /** 接口请求参数 */
+    interfaceRequestParams?: string;
+    /** 接口请求参数编码格式 */
+    interfaceRequestParamsCharset?: string;
+    /** 接口请求参数MIME类型 */
+    interfaceRequestParamsMime?: string;
+    /** 接口响应头 */
+    interfaceResponseHeader?: string;
+    /** 接口状态 */
+    interfaceStatus?: number;
+    /** 接口token */
+    interfaceToken?: string;
+    /** 接口提供系统 */
+    interfaceVendor?: string;
+    /** 接口提供系统名 */
+    interfaceVendorName?: string;
     pageSize?: number;
-    postQueryRequest?: PostQueryRequest;
     sortField?: string;
     sortOrder?: string;
-    userId?: number;
   };
 
-  type PostQueryRequest = {
-    content?: string;
-    current?: number;
-    favourUserId?: number;
+  type ResultApiInterfaceInfo = {
+    code?: number;
+    data?: ApiInterfaceInfo;
+    message?: string;
+  };
+
+  type ResultLoginUserVO = {
+    code?: number;
+    data?: LoginUserVO;
+    message?: string;
+  };
+
+  type Resultlong = {
+    code?: number;
+    data?: number;
+    message?: string;
+  };
+
+  type Resultobject = {
+    code?: number;
+    data?: Record<string, any>;
+    message?: string;
+  };
+
+  type ResultPageApiInterfaceInfo = {
+    code?: number;
+    data?: PageApiInterfaceInfo;
+    message?: string;
+  };
+
+  type Resultstring = {
+    code?: number;
+    data?: string;
+    message?: string;
+  };
+
+  type UpdateInterfaceInfoForm = {
+    /** 接口id */
     id?: number;
-    notId?: number;
-    orTags?: string[];
-    pageSize?: number;
-    searchText?: string;
-    sortField?: string;
-    sortOrder?: string;
-    tags?: string[];
-    title?: string;
-    userId?: number;
+    /** 接口描述 */
+    interfaceDescription?: string;
+    /** 访问主机 */
+    interfaceHost?: string;
+    /** 接口名称 */
+    interfaceName?: string;
+    /** 访问路径 */
+    interfacePath?: string;
+    /** 接口响应头 */
+    interfaceRequestHeader?: string;
+    /** 接口请求方法类型 */
+    interfaceRequestMethod?: string;
+    /** 接口请求参数 */
+    interfaceRequestParams?: string;
+    /** 接口请求参数编码格式 */
+    interfaceRequestParamsCharset?: string;
+    /** 接口请求参数MIME类型 */
+    interfaceRequestParamsMime?: string;
+    /** 接口响应头 */
+    interfaceResponseHeader?: string;
+    /** 接口提供系统 */
+    interfaceVendor?: string;
+    /** 接口提供系统名 */
+    interfaceVendorName?: string;
   };
 
-  type PostThumbAddRequest = {
-    postId?: number;
-  };
-
-  type PostUpdateRequest = {
-    content?: string;
-    id?: number;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostVO = {
-    content?: string;
-    createTime?: string;
-    favourNum?: number;
-    hasFavour?: boolean;
-    hasThumb?: boolean;
-    id?: number;
-    tagList?: string[];
-    thumbNum?: number;
-    title?: string;
-    updateTime?: string;
-    user?: UserVO;
-    userId?: number;
-  };
-
-  type uploadFileUsingPOSTParams = {
-    biz?: string;
-  };
-
-  type User = {
-    createTime?: string;
-    id?: number;
-    isDelete?: number;
-    mpOpenId?: string;
-    unionId?: string;
-    updateTime?: string;
+  type UserLoginForm = {
+    /** 用户名 */
     userAccount?: string;
-    userAvatar?: string;
-    userName?: string;
-    userPassword?: string;
-    userProfile?: string;
-    userRole?: string;
-  };
-
-  type UserAddRequest = {
-    userAccount?: string;
-    userAvatar?: string;
-    userName?: string;
-    userRole?: string;
-  };
-
-  type userLoginByWxOpenUsingGETParams = {
-    /** code */
-    code: string;
-  };
-
-  type UserLoginRequest = {
-    userAccount?: string;
+    /** 密码 */
     userPassword?: string;
   };
 
-  type UserQueryRequest = {
-    current?: number;
-    id?: number;
-    mpOpenId?: string;
-    pageSize?: number;
-    sortField?: string;
-    sortOrder?: string;
-    unionId?: string;
-    userName?: string;
-    userProfile?: string;
-    userRole?: string;
-  };
-
-  type UserRegisterRequest = {
+  type UserRegisterForm = {
+    /** 确认密码 */
     checkPassword?: string;
+    /** 用户名 */
     userAccount?: string;
+    /** 密码 */
     userPassword?: string;
-  };
-
-  type UserUpdateMyRequest = {
-    userAvatar?: string;
-    userName?: string;
-    userProfile?: string;
-  };
-
-  type UserUpdateRequest = {
-    id?: number;
-    userAvatar?: string;
-    userName?: string;
-    userProfile?: string;
-    userRole?: string;
-  };
-
-  type UserVO = {
-    createTime?: string;
-    id?: number;
-    userAvatar?: string;
-    userName?: string;
-    userProfile?: string;
-    userRole?: string;
   };
 }
