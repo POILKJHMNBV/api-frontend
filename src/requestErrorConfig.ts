@@ -108,7 +108,7 @@ export const errorConfig: RequestConfig = {
       if (data?.success === false) {
         message.error('请求失败！');
       }
-      if (data?.code === 40100) {
+      if (data?.code === 401) {
         const { location } = history;
         if (location.pathname !== rootPath) {
           message.error('登录超时！');

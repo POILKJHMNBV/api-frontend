@@ -1,18 +1,15 @@
-import Footer from '@/components/Footer';
-import { userLoginUsingPOST } from '@/services/api-backend/userController';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { LoginForm, ProFormText } from '@ant-design/pro-components';
+import React from 'react';
+import { ProFormText } from '@ant-design/pro-form';
+import { FormattedMessage, Helmet, history, useIntl } from '@@/exports';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
-import { FormattedMessage, Helmet, history, useIntl, useModel } from '@umijs/max';
+import { userRegisterUsingPOST } from '@/services/api-backend/userController';
 import { message, Tabs } from 'antd';
 import Settings from '../../../../config/defaultSettings';
-import React, { useState } from 'react';
-import { flushSync } from 'react-dom';
+import { LoginForm } from '@ant-design/pro-components';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import Footer from '@/components/Footer';
 
-const Login: React.FC = () => {
-  const [type, setType] = useState<string>('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
-
+const Register: React.FC = () => {
   const containerClassName = useEmotionCss(() => {
     return {
       display: 'flex',
@@ -27,40 +24,26 @@ const Login: React.FC = () => {
 
   const intl = useIntl();
 
-  const fetchUserInfo = async () => {
-    const userInfo = await initialState?.fetchUserInfo?.();
-    if (userInfo) {
-      flushSync(() => {
-        setInitialState((s) => ({
-          ...s,
-          currentUser: userInfo,
-        }));
-      });
-    }
-  };
-  const handleSubmit = async (values: API.UserLoginForm) => {
-    const defaultLoginFailureMessage = intl.formatMessage({
-      id: 'pages.login.failure',
-      defaultMessage: '登录失败，请重试！',
+  const handleSubmit = async (values: API.UserRegisterForm) => {
+    const defaultRegisterFailureMessage = intl.formatMessage({
+      id: 'pages.register.failure',
+      defaultMessage: '注册失败，请重试！',
     });
     try {
       // 登录
-      const res = await userLoginUsingPOST({ ...values });
-      if (res.code === 200 && res.data) {
+      const res = await userRegisterUsingPOST({ ...values });
+      if (res.code === 200) {
         const defaultLoginSuccessMessage = intl.formatMessage({
-          id: 'pages.login.success',
-          defaultMessage: '登录成功！',
+          id: 'pages.register.success',
+          defaultMessage: '注册成功！',
         });
-        localStorage.setItem('apiBackendToken', res.data);
         message.success(defaultLoginSuccessMessage);
-        await fetchUserInfo();
-        const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/');
+        history.push('/user/login');
       } else {
-        message.error(res.message ? res.message : defaultLoginFailureMessage);
+        message.error(res.message ? res.message : defaultRegisterFailureMessage);
       }
     } catch (error) {
-      message.error(defaultLoginFailureMessage);
+      message.error(defaultRegisterFailureMessage);
     }
   };
 
@@ -69,8 +52,8 @@ const Login: React.FC = () => {
       <Helmet>
         <title>
           {intl.formatMessage({
-            id: 'menu.login',
-            defaultMessage: '登录页',
+            id: 'menu.register',
+            defaultMessage: '注册页',
           })}
           - {Settings.title}
         </title>
@@ -82,6 +65,7 @@ const Login: React.FC = () => {
         }}
       >
         <LoginForm
+          submitter={{ searchConfig: { submitText: '注册'}}}
           contentStyle={{
             minWidth: 280,
             maxWidth: '75vw',
@@ -89,23 +73,18 @@ const Login: React.FC = () => {
           logo={<img alt="logo" src="/logo.svg" />}
           title="Ant Design"
           subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}
-          initialValues={{
-            autoLogin: true,
-          }}
           onFinish={async (values) => {
-            await handleSubmit(values as API.UserLoginForm);
+            await handleSubmit(values as API.UserRegisterForm);
           }}
         >
           <Tabs
-            activeKey={type}
-            onChange={setType}
             centered
             items={[
               {
                 key: 'account',
                 label: intl.formatMessage({
-                  id: 'pages.login.accountLogin.tab',
-                  defaultMessage: '账户密码登录',
+                  id: 'pages.login.register.tab',
+                  defaultMessage: '注册',
                 }),
               },
             ]}
@@ -118,7 +97,7 @@ const Login: React.FC = () => {
             }}
             placeholder={intl.formatMessage({
               id: 'pages.login.username.placeholder',
-              defaultMessage: '用户名: admin or user',
+              defaultMessage: '请输入用户名',
             })}
             rules={[
               {
@@ -154,34 +133,33 @@ const Login: React.FC = () => {
               },
             ]}
           />
-
-          <div
-            style={{
-              marginBottom: 50,
+          <ProFormText.Password
+            name="checkPassword"
+            fieldProps={{
+              size: 'large',
+              prefix: <LockOutlined />,
             }}
-          >
-            <a
-              style={{
-                float: 'left',
-              }}
-              onClick={() => {history.push('/user/register')}}
-            >
-              <FormattedMessage id="pages.login.register" defaultMessage="没有账号" />
-            </a>
-
-            <a
-              style={{
-                float: 'right',
-              }}
-            >
-              <FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
-            </a>
-          </div>
+            placeholder={intl.formatMessage({
+              id: 'pages.login.checkPassword.placeholder',
+              defaultMessage: '确认密码',
+            })}
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.login.checkPassword.required"
+                    defaultMessage="请输入密码！"
+                  />
+                ),
+              },
+            ]}
+          />
         </LoginForm>
       </div>
       <Footer />
     </div>
   );
-};
+}
 
-export default Login;
+export default Register;

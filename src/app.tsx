@@ -11,6 +11,7 @@ import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDrop
 import { loadUserInfoUsingGET } from '@/services/api-backend/userController';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
+const defaultAvatar = 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png';
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
@@ -53,7 +54,7 @@ export async function getInitialState(): Promise<{
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
     avatarProps: {
-      src: initialState?.currentUser?.userAvatar,
+      src: initialState?.currentUser?.userAvatar ? initialState.currentUser.userAvatar : defaultAvatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown menu={true}>{avatarChildren}</AvatarDropdown>;

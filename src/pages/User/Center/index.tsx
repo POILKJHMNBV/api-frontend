@@ -2,6 +2,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 import {Avatar, Card, Descriptions, message} from 'antd';
 import { loadUserInfoUsingGET } from '@/services/api-backend/userController';
+const defaultAvatar = 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png';
 
 const Index: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -29,10 +30,10 @@ const Index: React.FC = () => {
         <Avatar
           size={128}
           className="umi-plugin-layout-avatar"
-          src={data? data.userAvatar : "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"}
+          src={data?.userAvatar? data.userAvatar : defaultAvatar}
           alt="avatar"
         />
-        <span style={{marginLeft: 20, fontSize: 30}}>{data ? data.userName : ""}</span>
+        <span style={{marginLeft: 20, fontSize: 30}}>{data?.userName ? data.userName : "Serati Ma"}</span>
         {data ? (
           <Descriptions style={{marginTop: 15}} column={1}>
             <Descriptions.Item label="用户公钥">{data.userPublickey}</Descriptions.Item>
