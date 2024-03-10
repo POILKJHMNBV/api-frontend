@@ -1,5 +1,5 @@
 import {PlusOutlined} from '@ant-design/icons';
-import type {ActionType, ProColumns, ProDescriptionsItemProps} from '@ant-design/pro-components';
+import type {ActionType, ProColumns} from '@ant-design/pro-components';
 import {FooterToolbar, PageContainer, ProDescriptions, ProTable,} from '@ant-design/pro-components';
 import {FormattedMessage, useIntl} from '@umijs/max';
 import {Button, Drawer, message} from 'antd';
@@ -9,7 +9,7 @@ import {
   addInterfaceInfoUsingPOST, deleteInterfaceInfoUsingDELETE,
   listInterfaceInfoByPageUsingPOST,
   offlineInterfaceInfoUsingPUT,
-  onlineInterfaceInfoUsingPUT,
+  onlineInterfaceInfoUsingPUT, queryInterfaceInfoByIdUsingGET,
   updateInterfaceInfoUsingPUT
 } from "@/services/api-backend/interfaceInfoController";
 import CreateForm from "@/pages/Admin/Interfaceinfo/components/CreateForm";
@@ -166,7 +166,7 @@ const TableList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  const columns: ProColumns<API.ApiInterfaceInfo>[] = [
+  const createOrUpdateColums: ProColumns<API.ApiInterfaceInfo>[] = [
     {
       title: '名称',
       dataIndex: 'interfaceName',
@@ -201,6 +201,131 @@ const TableList: React.FC = () => {
       title: '描述',
       dataIndex: 'interfaceDescription',
       valueType: 'textarea',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
+    },
+    {
+      title: '请求方法',
+      dataIndex: 'interfaceRequestMethod',
+      valueType: 'text',
+      valueEnum: {
+        0: {
+          text: 'GET'
+        },
+        1: {
+          text: 'POST'
+        },
+        2: {
+          text: 'DELETE'
+        },
+        3: {
+          text: 'PUT'
+        },
+        4: {
+          text: 'PATCH'
+        }
+      },
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
+    },
+    {
+      title: '访问主机',
+      dataIndex: 'interfaceHost',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
+    },
+    {
+      title: '访问路径',
+      dataIndex: 'interfacePath',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
+    },
+    {
+      title: '请求头',
+      dataIndex: 'interfaceRequestHeader',
+      valueType: 'jsonCode'
+    },
+    {
+      title: '请求参数',
+      dataIndex: 'interfaceRequestParams',
+      valueType: 'jsonCode'
+    },
+    {
+      title: '请求参数MIME类型',
+      dataIndex: 'interfaceRequestParamsMime',
+      valueType: 'text',
+    },
+    {
+      title: '请求参数编码格式',
+      dataIndex: 'interfaceRequestParamsCharset',
+      valueType: 'text',
+      valueEnum: {
+        0: {
+          text: 'GBK'
+        },
+        1: {
+          text: 'UTF-8'
+        }
+      },
+    },
+    {
+      title: '响应头',
+      dataIndex: 'interfaceResponseHeader',
+      valueType: 'jsonCode'
+    }
+  ]
+
+  const columns: ProColumns<API.ApiInterfaceInfo>[] = [
+    {
+      title: '名称',
+      dataIndex: 'interfaceName',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      },
+      render: (dom, entity) => {
+        return (
+          <a
+            onClick={() => {
+              setCurrentRow(entity);
+              setShowDetail(true);
+            }}
+          >
+            {dom}
+          </a>
+        );
+      },
+    },
+    {
+      title: '提供系统',
+      dataIndex: 'interfaceVendor',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
+    },
+    {
+      title: '提供系统名',
+      dataIndex: 'interfaceVendorName',
+      valueType: 'text',
       formItemProps: {
         rules:[{
           required: true
@@ -270,42 +395,6 @@ const TableList: React.FC = () => {
       }
     },
     {
-      title: '请求头',
-      dataIndex: 'interfaceRequestHeader',
-      valueType: 'jsonCode',
-      hideInSearch: true
-    },
-    {
-      title: '请求参数',
-      dataIndex: 'interfaceRequestParams',
-      valueType: 'jsonCode',
-      hideInSearch: true
-    },
-    {
-      title: '请求参数MIME类型',
-      dataIndex: 'interfaceRequestParamsMime',
-      valueType: 'text',
-    },
-    {
-      title: '请求参数编码格式',
-      dataIndex: 'interfaceRequestParamsCharset',
-      valueType: 'text',
-      valueEnum: {
-        0: {
-          text: 'GBK'
-        },
-        1: {
-          text: 'UTF-8'
-        }
-      },
-    },
-    {
-      title: '响应头',
-      dataIndex: 'interfaceResponseHeader',
-      valueType: 'jsonCode',
-      hideInSearch: true
-    },
-    {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'date',
@@ -324,9 +413,12 @@ const TableList: React.FC = () => {
       render: (_, record) => [
         <a
           key="config"
-          onClick={() => {
+          onClick={async () => {
             handleUpdateModalOpen(true);
-            setCurrentRow(record);
+            const res = await queryInterfaceInfoByIdUsingGET ({
+              id: Number(record.id),
+            });
+            setCurrentRow(res.data);
           }}
         >
           <FormattedMessage id="pages.searchTable.config" defaultMessage="Configuration" />
@@ -432,12 +524,12 @@ const TableList: React.FC = () => {
         </FooterToolbar>
       )}
       <CreateForm
-        columns={columns}
+        columns={createOrUpdateColums}
         onCancel={() => {handleModalOpen(false)}}
         onSubmit={(values) => {handleAdd(values)}}
         visible={createModalOpen}/>
       <UpdateForm
-        columns={columns}
+        columns={createOrUpdateColums}
         onSubmit={async (value) => {
           const success = await handleUpdate(value);
           if (success) {
@@ -450,16 +542,13 @@ const TableList: React.FC = () => {
         }}
         onCancel={() => {
           handleUpdateModalOpen(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
+          setCurrentRow(undefined);
         }}
         visible={updateModalOpen}
-        values={currentRow || {}}
+        data={currentRow || {}}
       />
-
       <Drawer
-        width={600}
+        width={800}
         open={showDetail}
         onClose={() => {
           setCurrentRow(undefined);
@@ -471,14 +560,128 @@ const TableList: React.FC = () => {
           <ProDescriptions<API.ApiInterfaceInfo>
             column={2}
             title={currentRow?.interfaceName}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.interfaceName,
+            request={async () => {
+              const res = await queryInterfaceInfoByIdUsingGET ({
+                id: Number(currentRow.id),
+              });
+              return Promise.resolve({
+                success: true,
+                data: res.data || {},
+              });
             }}
-            columns={columns as ProDescriptionsItemProps<API.ApiInterfaceInfo>[]}
-          />
+            columns={[
+              {
+                title: '名称',
+                dataIndex: 'interfaceName',
+                valueType: 'text',
+              },
+              {
+                title: '提供系统',
+                dataIndex: 'interfaceVendor',
+                valueType: 'text',
+              },
+              {
+                title: '提供系统名',
+                dataIndex: 'interfaceVendorName',
+                valueType: 'text',
+              },
+              {
+                title: '描述',
+                dataIndex: 'interfaceDescription',
+                valueType: 'textarea',
+              },
+              {
+                title: '请求方法',
+                dataIndex: 'interfaceRequestMethod',
+                valueType: 'text',
+                valueEnum: {
+                  0: {
+                    text: 'GET'
+                  },
+                  1: {
+                    text: 'POST'
+                  },
+                  2: {
+                    text: 'DELETE'
+                  },
+                  3: {
+                    text: 'PUT'
+                  },
+                  4: {
+                    text: 'PATCH'
+                  }
+                },
+              },
+              {
+                title: <FormattedMessage id="pages.searchTable.titleStatus" defaultMessage="Status" />,
+                dataIndex: 'interfaceStatus',
+                valueEnum: {
+                  0: {
+                    text: '关闭',
+                    status: 'Default',
+                  },
+                  1: {
+                    text: '开启',
+                    status: 'Processing',
+                  },
+                },
+              },
+              {
+                title: '访问主机',
+                dataIndex: 'interfaceHost',
+                valueType: 'text',
+              },
+              {
+                title: '访问路径',
+                dataIndex: 'interfacePath',
+                valueType: 'text',
+              },
+              {
+                title: '请求头',
+                dataIndex: 'interfaceRequestHeader',
+                valueType: 'jsonCode',
+              },
+              {
+                title: '请求参数',
+                dataIndex: 'interfaceRequestParams',
+                valueType: 'jsonCode'
+              },
+              {
+                title: '请求参数MIME类型',
+                dataIndex: 'interfaceRequestParamsMime',
+                valueType: 'text',
+              },
+              {
+                title: '请求参数编码格式',
+                dataIndex: 'interfaceRequestParamsCharset',
+                valueType: 'text',
+                valueEnum: {
+                  0: {
+                    text: 'GBK'
+                  },
+                  1: {
+                    text: 'UTF-8'
+                  }
+                },
+              },
+              {
+                title: '响应头',
+                dataIndex: 'interfaceResponseHeader',
+                valueType: 'jsonCode'
+              },
+              {
+                title: '创建时间',
+                dataIndex: 'createTime',
+                valueType: 'dateTime',
+              },
+              {
+                title: '更新时间',
+                dataIndex: 'updateTime',
+                valueType: 'dateTime',
+              },
+              ]}
+          >
+          </ProDescriptions>
         )}
       </Drawer>
     </PageContainer>

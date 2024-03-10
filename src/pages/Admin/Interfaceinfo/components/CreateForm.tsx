@@ -1,5 +1,4 @@
-import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { useIntl } from '@umijs/max';
+import {ProColumns, ProTable} from '@ant-design/pro-components';
 import { Modal } from 'antd';
 import React from 'react';
 export type CreateFormProps = {
@@ -10,13 +9,12 @@ export type CreateFormProps = {
 };
 
 const CreateForm: React.FC<CreateFormProps> = (props) => {
-  useIntl();
   const {columns, visible, onCancel, onSubmit} = props;
   return (
     <Modal footer={null} open={visible} onCancel={() => onCancel?.() }>
       <ProTable
         type="form"
-        columns = {columns}
+        columns={columns}
         onSubmit={
           async (values) => {
               onSubmit?.(values);

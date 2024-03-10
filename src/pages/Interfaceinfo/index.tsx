@@ -59,7 +59,7 @@ const Index: React.FC = () => {
   };
 
   return (
-    <PageContainer title="查看接口文档">
+    <PageContainer title="查看接口文档" loading={loading}>
       <Card>
         {data ? (
           <Descriptions title={data.interfaceName} column={1}>
