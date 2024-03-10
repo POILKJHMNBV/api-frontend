@@ -92,6 +92,14 @@ export const errorConfig: RequestConfig = {
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
       const url = config?.url;
+      const data = config?.data;
+      if (data) {
+        for (let key in data) {
+          if (typeof data[key] === 'string' && data[key].trim() === '') {
+            delete data[key];
+          }
+        }
+      }
       const headers = {
         'Authorization': localStorage.getItem('apiBackendToken')
       };
@@ -104,8 +112,7 @@ export const errorConfig: RequestConfig = {
     (response) => {
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
-
-      if (data?.success === false) {
+      if (!data) {
         message.error('请求失败！');
       }
       if (data?.code === 401) {

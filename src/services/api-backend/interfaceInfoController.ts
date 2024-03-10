@@ -19,15 +19,15 @@ export async function addInterfaceInfoUsingPOST(
 
 /** 删除接口信息 DELETE /api/interfaceInfo/delete */
 export async function deleteInterfaceInfoUsingDELETE(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.deleteInterfaceInfoUsingDELETEParams,
+  body: API.DeleteInterfaceInfoForm,
   options?: { [key: string]: any },
 ) {
   return request<API.Resultlong>('/api/interfaceInfo/delete', {
     method: 'DELETE',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }

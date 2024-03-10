@@ -6,8 +6,9 @@ const Welcome: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState<API.ApiInterfaceInfo[]>([]);
   const [total, setTotal] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const loadData = async (current = 1, pageSize = 5) => {
+  const loadData = async (current: number, pageSize: number) => {
     setLoading(true);
     try {
       const res = await listInterfaceInfoByPageUsingPOST({
@@ -23,7 +24,7 @@ const Welcome: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData();
+    loadData(1, pageSize);
   }, []);
 
   return (
@@ -48,9 +49,11 @@ const Welcome: React.FC = () => {
           showTotal(total: number) {
             return '总数：' + total;
           },
-          pageSize: 5,
+          showSizeChanger: true,
+          pageSize: pageSize,
           total,
           onChange(page, pageSize) {
+            setPageSize(pageSize);
             loadData(page, pageSize);
           },
         }}

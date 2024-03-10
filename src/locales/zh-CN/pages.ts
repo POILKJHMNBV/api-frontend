@@ -61,6 +61,8 @@ export default {
   'pages.searchTable.delete': '删除',
   'pages.searchTable.online': '发布',
   'pages.searchTable.offline': '下线',
+  'pages.searchTable.permission': '启用',
+  'pages.searchTable.forbidden': '禁用',
   'pages.searchTable.subscribeAlert': '订阅警报',
   'pages.searchTable.title': '查询表格',
   'pages.searchTable.new': '新建',

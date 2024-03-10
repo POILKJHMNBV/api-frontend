@@ -55,6 +55,12 @@ export default [
         path: '/admin/interface_info',
         component: './Admin/Interfaceinfo',
       },
+      {
+        name: 'user-info',
+        icon: 'table',
+        path: '/admin/user_info',
+        component: './Admin/User',
+      },
     ],
   },
   {

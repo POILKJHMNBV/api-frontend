@@ -14,30 +14,6 @@ import {
 } from "@/services/api-backend/interfaceInfoController";
 import CreateForm from "@/pages/Admin/Interfaceinfo/components/CreateForm";
 
-
-/**
- *  Delete node
- * @zh-CN 删除节点
- *
- * @param selectedRows
- */
-const handleRemove = async (selectedRows: API.ApiInterfaceInfo[]) => {
-  const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
-  try {
-    await deleteInterfaceInfoUsingDELETE({
-      ids: selectedRows.map((row) => row.id),
-    });
-    hide();
-    message.success('Deleted successfully and will refresh soon');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Delete failed, please try again');
-    return false;
-  }
-};
-
 const TableList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -53,8 +29,9 @@ const TableList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [ currentRow, setCurrentRow] = useState<API.ApiInterfaceInfo>();
+  const [currentRow, setCurrentRow] = useState<API.ApiInterfaceInfo>();
   const [selectedRowsState, setSelectedRows] = useState<API.ApiInterfaceInfo[]>([]);
+  const [pageSize, setPageSize] = useState(10);
 
 
   /**
@@ -65,10 +42,15 @@ const TableList: React.FC = () => {
   const handleAdd = async (fields: API.AddInterfaceInfoForm) => {
     const hide = message.loading('正在添加');
     try {
-      await addInterfaceInfoUsingPOST({ ...fields });
+      const res = await addInterfaceInfoUsingPOST({ ...fields });
       hide();
+      if (res?.code !== 200) {
+        message.error('Adding failed, please try again!');
+        return false;
+      }
       message.success('Added successfully');
       handleModalOpen(false);
+      actionRef.current?.reloadAndRest?.();
       return true;
     } catch (error) {
       hide();
@@ -80,21 +62,23 @@ const TableList: React.FC = () => {
   /**
    * @en-US Update node
    * @zh-CN 更新节点
-   *
    * @param fields
    */
   const handleUpdate = async (fields: API.UpdateInterfaceInfoForm) => {
     if (!currentRow) {
       return;
     }
-    const hide = message.loading('Configuring');
+    const hide = message.loading('正在更新!');
     try {
-      await updateInterfaceInfoUsingPUT({
+      const res = await updateInterfaceInfoUsingPUT({
         id: currentRow.id,
         ...fields
       });
       hide();
-
+      if (res?.code !== 200) {
+        message.error('Configuration failed, please try again!');
+        return false;
+      }
       message.success('Configuration is successful');
       return true;
     } catch (error) {
@@ -105,10 +89,37 @@ const TableList: React.FC = () => {
   };
 
   /**
+   *  Delete node
+   * @zh-CN 删除节点
+   *
+   * @param selectedRows
+   */
+  const handleRemove = async (selectedRows: API.ApiInterfaceInfo[]) => {
+    if (!selectedRows) return true;
+    const hide = message.loading('正在删除');
+    try {
+      const res= await deleteInterfaceInfoUsingDELETE({
+        ids: selectedRows.map((row) => row.id),
+      });
+      hide();
+      if (res?.code !== 200) {
+        message.error('Delete failed, please try again');
+        return false;
+      }
+      message.success('Deleted successfully and will refresh soon');
+      return true;
+    } catch (error) {
+      hide();
+      message.error('Delete failed, please try again');
+      return false;
+    }
+  };
+
+  /**
    * 发布接口
    * @param id
    */
-  const handleOnline = async (id: number) => {
+  const handleOnline = async (id?: number) => {
     const hide = message.loading('正在发布');
     try {
       await onlineInterfaceInfoUsingPUT({
@@ -117,6 +128,7 @@ const TableList: React.FC = () => {
       hide();
 
       message.success('发布成功');
+      actionRef.current?.reloadAndRest?.();
       return true;
     } catch (error) {
       hide();
@@ -130,7 +142,7 @@ const TableList: React.FC = () => {
    * 下线接口
    * @param id
    */
-  const handleOffline = async (id: number) => {
+  const handleOffline = async (id?: number) => {
     const hide = message.loading('正在下线');
     try {
       await offlineInterfaceInfoUsingPUT({
@@ -139,6 +151,7 @@ const TableList: React.FC = () => {
       hide();
 
       message.success('下线成功');
+      actionRef.current?.reloadAndRest?.();
       return true;
     } catch (error) {
       hide();
@@ -155,12 +168,7 @@ const TableList: React.FC = () => {
 
   const columns: ProColumns<API.ApiInterfaceInfo>[] = [
     {
-      title: 'id',
-      dataIndex: 'id',
-      valueType: 'index',
-    },
-    {
-      title: '接口名称',
+      title: '名称',
       dataIndex: 'interfaceName',
       valueType: 'text',
       formItemProps: {
@@ -170,24 +178,61 @@ const TableList: React.FC = () => {
       }
     },
     {
-      title: '接口提供系统',
+      title: '提供系统',
       dataIndex: 'interfaceVendor',
-      valueType: 'textarea',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
-      title: '接口提供系统名',
+      title: '提供系统名',
       dataIndex: 'interfaceVendorName',
-      valueType: 'textarea',
+      valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
       title: '描述',
       dataIndex: 'interfaceDescription',
       valueType: 'textarea',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
       title: '请求方法',
       dataIndex: 'interfaceRequestMethod',
       valueType: 'text',
+      valueEnum: {
+        0: {
+          text: 'GET'
+        },
+        1: {
+          text: 'POST'
+        },
+        2: {
+          text: 'DELETE'
+        },
+        3: {
+          text: 'PUT'
+        },
+        4: {
+          text: 'PATCH'
+        }
+      },
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
       title: <FormattedMessage id="pages.searchTable.titleStatus" defaultMessage="Status" />,
@@ -205,66 +250,72 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '接口是否删除',
-      dataIndex: 'interfaceDelete',
-      hideInForm: true,
-      valueEnum: {
-        0: {
-          text: '已删',
-          status: 'Default',
-        },
-        1: {
-          text: '未删',
-          status: 'Processing',
-        },
-      },
-    },
-    {
       title: '访问主机',
       dataIndex: 'interfaceHost',
       valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
       title: '访问路径',
       dataIndex: 'interfacePath',
       valueType: 'text',
+      formItemProps: {
+        rules:[{
+          required: true
+        }]
+      }
     },
     {
       title: '请求头',
       dataIndex: 'interfaceRequestHeader',
       valueType: 'jsonCode',
+      hideInSearch: true
     },
     {
       title: '请求参数',
       dataIndex: 'interfaceRequestParams',
       valueType: 'jsonCode',
+      hideInSearch: true
     },
     {
-      title: '接口请求参数MIME类型',
+      title: '请求参数MIME类型',
       dataIndex: 'interfaceRequestParamsMime',
       valueType: 'text',
     },
     {
-      title: '接口请求参数编码格式',
+      title: '请求参数编码格式',
       dataIndex: 'interfaceRequestParamsCharset',
       valueType: 'text',
+      valueEnum: {
+        0: {
+          text: 'GBK'
+        },
+        1: {
+          text: 'UTF-8'
+        }
+      },
     },
     {
       title: '响应头',
       dataIndex: 'interfaceResponseHeader',
       valueType: 'jsonCode',
+      hideInSearch: true
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      valueType: 'dateTime',
-      hideInForm: true,
+      valueType: 'date',
+      hideInForm: true
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      valueType: 'dateTime',
-      hideInForm: true,
+      valueType: 'date',
+      hideInForm: true
     },
     {
       title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="Operating" />,
@@ -297,16 +348,7 @@ const TableList: React.FC = () => {
           }}
         >
           <FormattedMessage id="pages.searchTable.offline" defaultMessage="Configuration" />
-        </a> : null,
-        <a
-          key="delete"
-          onClick={() => {
-            handleUpdateModalOpen(true);
-            setCurrentRow(record);
-          }}
-        >
-          <FormattedMessage id="pages.searchTable.delete" defaultMessage="Configuration" />
-        </a>
+        </a> : null
       ],
     },
   ];
@@ -315,6 +357,9 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.ApiInterfaceInfo, API.PageParams>
+        pagination={{
+          pageSize: pageSize, showSizeChanger: true, onChange: (page, pageSize) => setPageSize(pageSize)
+        }}
         headerTitle={intl.formatMessage({
           id: 'pages.searchTable.title',
           defaultMessage: 'Enquiry form',
@@ -322,7 +367,7 @@ const TableList: React.FC = () => {
         actionRef={actionRef}
         rowKey="id"
         search={{
-          labelWidth: 120,
+          labelWidth: 130,
         }}
         toolBarRender={() => [
           <Button
