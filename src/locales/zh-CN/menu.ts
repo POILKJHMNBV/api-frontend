@@ -7,6 +7,7 @@ export default {
   'menu.admin.sub-page': '二级管理页',
   'menu.admin.interface-info': '接口管理',
   'menu.admin.user-info': '用户管理',
+  'menu.admin.interface-analysis': '接口分析',
   'menu.login': '登录',
   'menu.register': '注册',
   'menu.register-result': '注册结果',

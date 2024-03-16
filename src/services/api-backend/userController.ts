@@ -31,6 +31,21 @@ export async function forbidUserUsingPUT(
   });
 }
 
+/** 获取验证码 GET /api/user/getVerificationCode */
+export async function getVerificationCodeUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getVerificationCodeUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.Resultstring>('/api/user/getVerificationCode', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 分页查询用户信息 POST /api/user/list/page */
 export async function listUserInfoByPageUsingPOST(
   body: API.QueryUserInfoForm,

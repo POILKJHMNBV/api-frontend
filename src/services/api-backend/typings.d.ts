@@ -71,17 +71,29 @@ declare namespace API {
 
   type DeleteInterfaceInfoForm = {
     /** 接口id数组 */
-    ids: (undefined | number)[];
+    ids?: (number | undefined)[];
   };
 
   type DeleteUserInfoForm = {
     /** 用户id数组 */
-    ids?: (undefined | number)[];
+    ids?: number[];
   };
 
   type forbidUserUsingPUTParams = {
     /** id */
-    id?: number;
+    id: number;
+  };
+
+  type getVerificationCodeUsingGETParams = {
+    /** userAccount */
+    userAccount: string;
+    /** operate */
+    operate: number;
+  };
+
+  type InterfaceAnalysisVo = {
+    interfaceName?: string;
+    invokeNum?: number;
   };
 
   type InvokeInterfaceForm = {
@@ -149,7 +161,7 @@ declare namespace API {
 
   type permitUserUsingPUTParams = {
     /** id */
-    id?: number;
+    id: number;
   };
 
   type queryInterfaceInfoByIdUsingGETParams = {
@@ -217,58 +229,50 @@ declare namespace API {
 
   type ResultApiInterfaceInfo = {
     code?: number;
-    current?: number;
     data?: ApiInterfaceInfo;
     message?: string;
-    pageSize?: number;
+  };
+
+  type ResultListInterfaceAnalysisVo = {
+    code?: number;
+    data?: InterfaceAnalysisVo[];
+    message?: string;
   };
 
   type ResultLoginUserVO = {
     code?: number;
-    current?: number;
     data?: LoginUserVO;
     message?: string;
-    pageSize?: number;
   };
 
   type Resultlong = {
     code?: number;
-    current?: number;
     data?: number;
     message?: string;
-    pageSize?: number;
   };
 
   type Resultobject = {
     code?: number;
-    current?: number;
     data?: Record<string, any>;
     message?: string;
-    pageSize?: number;
   };
 
   type ResultPageApiInterfaceInfo = {
     code?: number;
-    current?: number;
     data?: PageApiInterfaceInfo;
     message?: string;
-    pageSize?: number;
   };
 
   type ResultPageApiUser = {
     code?: number;
-    current?: number;
     data?: PageApiUser;
     message?: string;
-    pageSize?: number;
   };
 
   type Resultstring = {
     code?: number;
-    current?: number;
-    data?: string;
+    data: string;
     message?: string;
-    pageSize?: number;
   };
 
   type UpdateInterfaceInfoForm = {
@@ -305,6 +309,8 @@ declare namespace API {
     userAccount?: string;
     /** 密码 */
     userPassword?: string;
+    /** 验证码 */
+    verificationCode?: string;
   };
 
   type UserRegisterForm = {
@@ -314,5 +320,7 @@ declare namespace API {
     userAccount?: string;
     /** 密码 */
     userPassword?: string;
+    /** 验证码 */
+    verificationCode?: string;
   };
 }

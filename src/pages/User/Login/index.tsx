@@ -1,7 +1,7 @@
 import Footer from '@/components/Footer';
-import { userLoginUsingPOST } from '@/services/api-backend/userController';
+import {getVerificationCodeUsingGET, userLoginUsingPOST} from '@/services/api-backend/userController';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { LoginForm, ProFormText } from '@ant-design/pro-components';
+import { LoginForm, ProFormText, ProFormCaptcha } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { FormattedMessage, Helmet, history, useIntl, useModel } from '@umijs/max';
 import { message, Tabs } from 'antd';
@@ -153,6 +153,55 @@ const Login: React.FC = () => {
                 ),
               },
             ]}
+          />
+          <ProFormCaptcha
+            fieldProps={{
+              size: 'large',
+              prefix: <LockOutlined />,
+            }}
+            captchaProps={{
+              size: 'large',
+            }}
+            placeholder={intl.formatMessage({
+              id: 'pages.login.captcha.placeholder',
+              defaultMessage: '请输入验证码',
+            })}
+            captchaTextRender={(timing, count) => {
+              if (timing) {
+                return `${count} ${intl.formatMessage({
+                  id: 'pages.getCaptchaSecondText',
+                  defaultMessage: '获取验证码',
+                })}`;
+              }
+              return intl.formatMessage({
+                id: 'pages.login.phoneLogin.getVerificationCode',
+                defaultMessage: '获取验证码',
+              });
+            }}
+            name="verificationCode"
+            phoneName="userAccount"
+            rules={[
+              {
+                required: true,
+                message: (
+                  <FormattedMessage
+                    id="pages.login.captcha.required"
+                    defaultMessage="请输入验证码！"
+                  />
+                ),
+              },
+            ]}
+            onGetCaptcha={async (userAccount) => {
+              const result = await getVerificationCodeUsingGET({
+                userAccount: userAccount,
+                operate: 1
+              });
+              if (result.code === 200 && result.data) {
+                message.success('获取验证码成功！验证码为：'+ result.data);
+              } else {
+                message.error(result.message || '验证码获取失败，请稍后再试');
+              }
+            }}
           />
 
           <div
