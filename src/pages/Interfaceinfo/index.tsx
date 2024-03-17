@@ -63,14 +63,10 @@ const Index: React.FC = () => {
       <Card>
         {data ? (
           <Descriptions title={data.interfaceName} column={1}>
-            <Descriptions.Item label="接口状态">{data.interfaceStatus ? '开启' : '关闭'}</Descriptions.Item>
             <Descriptions.Item label="描述">{data.interfaceDescription}</Descriptions.Item>
             <Descriptions.Item label="接口token">{data.interfaceToken}</Descriptions.Item>
             <Descriptions.Item label="访问路径">{data.interfacePath}</Descriptions.Item>
-            <Descriptions.Item label="请求方法">{data.interfaceRequestMethod}</Descriptions.Item>
             <Descriptions.Item label="请求参数">{data.interfaceRequestParams}</Descriptions.Item>
-            <Descriptions.Item label="请求头">{data.interfaceRequestHeader}</Descriptions.Item>
-            <Descriptions.Item label="响应头">{data.interfaceResponseHeader}</Descriptions.Item>
           </Descriptions>
         ) : (
           <>接口不存在</>
