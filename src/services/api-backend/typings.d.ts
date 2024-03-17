@@ -76,12 +76,12 @@ declare namespace API {
 
   type DeleteUserInfoForm = {
     /** 用户id数组 */
-    ids?: number[];
+    ids?: (number | undefined)[];
   };
 
   type forbidUserUsingPUTParams = {
     /** id */
-    id: number;
+    id?: number;
   };
 
   type getVerificationCodeUsingGETParams = {
@@ -161,7 +161,7 @@ declare namespace API {
 
   type permitUserUsingPUTParams = {
     /** id */
-    id: number;
+    id?: number;
   };
 
   type queryInterfaceInfoByIdUsingGETParams = {
