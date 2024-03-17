@@ -195,7 +195,7 @@ const Register: React.FC = () => {
             onGetCaptcha={async (userAccount) => {
               const result = await getVerificationCodeUsingGET({
                 userAccount: userAccount,
-                operate: 1
+                operate: 0
               });
               if (result.code === 200 && result.data) {
                 message.success('获取验证码成功！验证码为：'+ result.data);
