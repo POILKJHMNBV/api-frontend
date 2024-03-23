@@ -48,9 +48,12 @@ const Index: React.FC = () => {
         id: params.id,
         ...values,
       });
-      console.log("invokeResult", res.data);
+      if (res?.code !== 200) {
+        setInvokeRes(res.message);
+        setInvokeLoading(false);
+        return;
+      }
       setInvokeRes(res.data);
-      console.log("invokeRes", invokeRes);
       message.success('请求成功');
     } catch (error: any) {
       message.error('操作失败，' + error.message);
